@@ -1,27 +1,15 @@
 import React from 'react'
 
-export default function Login(props){
-
-    const [local, setLocal] = React.useState('')
-
-
-    function handleChange(e){
-        e.preventDefault()
-        setLocal(e.target.value)
-    }
-
-    function handleClick(e){
-        e.preventDefault()
-        props.func(local)
-    }
+export default function Login({setUser,setRoom,joinRoom}){
 
     return (
         <div>
-            <form>
-                    <p>Enter user name:</p>
-                    <input type="text" onChange={handleChange}></input>
-                    <button onClick={handleClick}>login</button>
-            </form>
+            <h3>Login</h3>
+            <input type="text" placeholder="Name" 
+            onChange={(event) => {setUser(event.target.value)}}/>
+            <input type="text" placeholder="Room ID"
+            onChange={(event) => {setRoom(event.target.value)}}/>
+            <button onClick={joinRoom}>Join</button>
         </div>
     )
 }

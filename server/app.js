@@ -3,6 +3,10 @@ const app = express()
 const http = require('http')
 const {Server} = require('socket.io')
 const cors =  require('cors')
+const mongoose = require('mongoose')
+const dotenv = require('dotenv')
+dotenv.config()
+const User = require('./model/User')
 
 const server = http.createServer(app)
 app.use(cors())
@@ -17,6 +21,10 @@ const io = new Server(server, {
     }
 })
 
+/**
+ * holds the current users in all rooms, will eventually replace with database
+ * with schema of user,room,socketid
+ */
 let users = {}
 
 
@@ -60,7 +68,6 @@ io.on('connection', (socket) => {
             console.log(`${userLeft.message}`);
         }
         socket.leave(data);
-        //socket.in(socket.id).socketsLeave(data);
     })
 
     socket.on('disconnect',() =>{
@@ -95,12 +102,27 @@ app.get('/api/roomUsers/:roomID', (req,res)=>{
 
 async function start(){
     try {
-        // need to define what connectDB is and then set up the .env file for the connection to db
-        await connectDB(process.env.MONGO_URI)
+        const URI = process.env.MONGO_URI
+        await mongoose.connect(URI)
+        console.log('Connected to DB')
         server.listen(5000,()=>{console.log('Started on port 5000...')})
+
     } catch (error) { 
         console.log(error)
     }
 }
+start()
+const date = new Date()
 
-server.listen(5000,()=>{console.log('Started on port 5000...');})
+const testing = new User({
+    user:'testing',
+    room:'123',
+    time:`${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+})
+
+// testing.save();
+async function all(){
+    const allUsers = await User.find({})
+    console.log(allUsers);
+}
+all()

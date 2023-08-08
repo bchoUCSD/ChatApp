@@ -2,7 +2,8 @@ import React from "react"
 import Login from './components/Login.js'
 import io from 'socket.io-client'
 
-const socket = io.connect('http://localhost:5000')
+const socket = io.connect('http://localhost:5000', {
+})
 
 export default function App(){
 
@@ -11,11 +12,30 @@ export default function App(){
     const [currMessage,setCurrMessage] = React.useState('')
     const [messages, setMessages] = React.useState([])
     const [login, setLogin] = React.useState(false)
+    const [roomUsers, setRoomUsers] = React.useState([])
     const date = new Date()
 
+
+
     React.useEffect(()=>{
+        async function updateRoomUsers(){
+            await fetch(`http://localhost:5000/api/roomUsers/${room}`)
+            .then(response => response.json())
+            .then(json => setRoomUsers(json.roomUsers))
+            .catch(error => console.log(error))
+        }
+
+        socket.on('user_join', (data)=> {
+            setMessages(prevMessages => {
+                return [
+                    ...prevMessages,
+                    data
+                ]
+            })
+            updateRoomUsers()
+        })
+
         socket.on("received_message", (data) => {
-            console.log(data.message)
             setMessages(prevMessages => {
                 return [
                     ...prevMessages,
@@ -23,34 +43,42 @@ export default function App(){
                 ]
             })
         })
-        // socket.on('user_disconnect', (data)=>{
-        //     console.log(data);
-        //     setMessages(prevMessages => {
-        //         return [
-        //             ...prevMessages,
-        //             {
-        //                 //trying to say if someone disconnected
-        //                 user:'admin',
-        //                 room:data.room,
-        //                 time: `${date.getHours()}:${date.getMinutes()}`,
-        //                 message: `${data.user} disconnected`
-        //             }
-        //         ]
-        //     })
-        // })
 
-        return () => {socket.off("received_message")} // need this so it won't rerender again
-    },[])
+        socket.on('user_disconnect', (data)=>{
+            setMessages(prevMessages => {
+                return [
+                    ...prevMessages,
+                    data
+                ]
+            })
+            updateRoomUsers()
+        })
 
-    function joinRoom(){
+        return () => {
+            socket.off("received_message") 
+            socket.off('user_disconnect')
+            socket.off('user_join')
+            } // need this so it won't rerender again
+    },[roomUsers,room])
+
+    async function joinRoom(){
         // only allows if both are not empty
         if(user && room){
-            const data = {
+            socket.connect()
+            let data = {
                 user:user,
-                room:room
+                room:room,
+                // message:`${user} joined ${room}`,
+                time: `${date.getHours()}:${date.getMinutes()}`
             }
-            socket.emit('join_room',data)
+            await socket.emit('join_room',data)
             setLogin(true)
+            
+            await fetch(`http://localhost:5000/api/roomUsers/${room}`)
+            .then(response => response.json())
+            .then(json => setRoomUsers(json.roomUsers))
+            .catch(error => console.log(error))
+            console.log('second',roomUsers);
         }
     }
 
@@ -70,7 +98,22 @@ export default function App(){
         }
     }
 
-    const formatMessages = messages.map((msg,index) => { return <p key={index}>{msg.user}:{msg.message}</p>})
+    function leaveRoom(){
+        socket.emit('leave-room',room)
+        setLogin(false)
+        setRoom('')
+        setUser('')
+        setMessages([])
+        setRoomUsers([])
+    }
+
+    const formatMessages = messages.map((msg,index) => 
+    { return <p key={index}>{msg.user} [{msg.time}]: {msg.message}</p>})
+
+    const formatRoomUsers = roomUsers.map((person,index) => {
+        return <p key={index}>{person}</p>
+    })
+
 
     return ( 
         <>
@@ -78,12 +121,14 @@ export default function App(){
             {!login? <Login setUser={setUser} setRoom={setRoom} joinRoom={joinRoom}/>
             :
             (<div>
-            <h3>Chat room id: {room}</h3>
-            <input type="text" placeholder="Message" value={currMessage} 
-            onChange={(event) => {setCurrMessage(event.target.value)}}></input>
-            <button onClick={sendMsg}>Send</button>
-            {formatMessages}
-        </div>)
+                <h3>Chat room id: {room}</h3>
+                {formatMessages}
+                <h4>Users: {formatRoomUsers}</h4>
+                <input type="text" placeholder="Message" value={currMessage} 
+                onChange={(event) => {setCurrMessage(event.target.value)}} onKeyDown={(event) =>{(event.key === 'Enter')&&sendMsg()}}></input>
+                <button onClick={sendMsg} >Send</button>
+                <button onClick={leaveRoom}>Leave</button>
+            </div>)
             }
         </>
     )

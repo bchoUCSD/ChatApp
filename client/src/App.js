@@ -68,17 +68,24 @@ export default function App(){
             let data = {
                 user:user,
                 room:room,
-                // message:`${user} joined ${room}`,
-                time: `${date.getHours()}:${date.getMinutes()}`
+                time: `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
             }
             await socket.emit('join_room',data)
             setLogin(true)
             
+            // getting existing users
             await fetch(`http://localhost:5000/api/roomUsers/${room}`)
             .then(response => response.json())
             .then(json => setRoomUsers(json.roomUsers))
             .catch(error => console.log(error))
-            console.log('second',roomUsers);
+
+            // getting existing messages
+            await fetch(`http://localhost:5000/api/messages/${room}`)
+            .then(response => response.json())
+            .then(json => setMessages(prevMessages => {
+                return [...prevMessages,...json.roomMsg]
+            }))
+            .catch(err => console.log(err))
         }
     }
 
@@ -89,6 +96,7 @@ export default function App(){
                 room:room,
                 message:currMessage,
                 time: `${date.getHours()}:${date.getMinutes()}`,
+                date: `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()}`
             }
             socket.emit('send_message', userData)
             setMessages(prevMessages => {

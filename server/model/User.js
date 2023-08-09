@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
+    socketID:{type:String, required:true},
     user:String,
     room:String,
     time:String

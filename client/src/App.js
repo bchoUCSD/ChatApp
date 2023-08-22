@@ -199,9 +199,31 @@ export default function App(){
         setMessages([])
         setRoomUsers([])
     }
+// <p key={index} className="own-message">{msg.user} [{msg.time}]: {msg.message}</p>
 
     const formatMessages = messages.map((msg,index) => 
-    { return <p key={index}>{msg.user} [{msg.time}]: {msg.message}</p>})
+    { 
+        if(msg.user === user){
+            return <>
+                <div key={index} className="own-message">
+                    <p className="timestamp">{msg.user} {msg.time}</p>
+                    <p className="message-body">{msg.message}</p>
+                </div>
+            </>
+        }
+        else if(msg.user === 'ADMIN'){
+            return <div key={index} className="admin-message">{msg.message}</div>
+        }
+        else{
+            return <div key={index} className="other-message">
+                    <p className="timestamp">{msg.user} {msg.time}</p>
+                    <p className="message-body-other">{msg.message}</p>
+                </div>
+            
+        }
+    }
+        
+    )
     
     const formatRoomUsers = roomUsers.map((person,index) => {
         return <p key={index}>{person}</p>
@@ -218,7 +240,7 @@ export default function App(){
             (
             <div className='homePage'>
                 <div className='chat-section'>
-                    <h3 className="room-title">Chat room id: {room}</h3>
+                    <h3 className="room-title">Room: {room}</h3>
                     <div className="chat">
                         {formatMessages}
                         <div ref={ref}></div>
@@ -230,11 +252,11 @@ export default function App(){
                     </div>
                 </div>
                 <div className='user-section'>
-                    <h4 className="user-title">Users:</h4>
+                    <h4 className="user-title">Users</h4>
                     <div className="users">
-                        <h5 className="user-title">{formatRoomUsers}</h5>
+                        <h5>{formatRoomUsers}</h5>
                     </div>
-                        <button onClick={leaveRoom} className="basic-btn" style={{backgroundColor:'rgb(162,229,255)'}}>Leave</button>
+                        <button onClick={leaveRoom} className="basic-btn leave">Leave</button>
                 </div>
             </div>
             )

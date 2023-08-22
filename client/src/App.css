@@ -20,6 +20,7 @@ body {
 
 .background{
     background-image: linear-gradient(to bottom right,rgb(255,188,162),rgb(162,229,255));
+    /* background-image: linear-gradient(to bottom right, rgb(105,185,210),rgb(115,115,201)); */
     padding: 0;
     height: 100vh;
 }
@@ -33,7 +34,7 @@ body {
     margin-left: 20px;
     margin-top: 10px;
     border-radius: 10px;
-    background-color: lightgray;
+    background-color: rgb(192,192,192);
     font-size: 30px;
 }
 
@@ -58,6 +59,18 @@ body {
     width: 200px;
     height: 30px;
     font-size: 15px;
+    outline:none;
+    border-radius: 5px;
+    border: none;
+}
+
+.login-info input:focus{
+    border: 2px solid rgb(192,192,192);
+    padding: 2px;
+}
+
+.login-info input::placeholder{
+    padding-left: 2px;
 }
 
 .basic-btn{
@@ -69,17 +82,21 @@ body {
     border-radius: 5px;
 }
 
+.basic-btn:hover{
+    background-color: rgb(192,192,192);
+}
 
 .join-button{
     height: 40px;
     width: 80px;
     font-size: 20px;
     border-radius: 10px;
-    background-color:#ADD8E6;
-    background-color: lightgray;
+    outline:none;
+    background-color: rgb(192,192,192);
     transition: background-color 0.5s;
     border: none;
     align-self: center;
+    margin-bottom: 50px;
 }
 
 .join-button:hover{
@@ -95,9 +112,11 @@ body {
 }
 
 .room-title{
-    background-color: lightgray;
-    width:200px;
+    background-color: rgb(192,192,192);
+    width:150px;
     padding:5px;
+    padding-left: 25px;
+    padding-right: 10px;
     border-radius: 10px;
 }
 
@@ -113,23 +132,78 @@ body {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    border:1px black solid;
     height: 500px;
     flex-shrink: 0;
     background-color: rgb(255,243,239);
     border-radius: 10px;
 }
 
-.user-title{
-    background-color: lightgray;
+.own-message{
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+    margin-right: 15px;
+    margin-top:0.25em;
+    margin-bottom: 0.25em;
+    max-width: 600px;
+    overflow-wrap: break-word;
 }
+
+.timestamp{
+    margin-bottom: 0;
+    align-self: flex-end;
+}
+
+.message-body{
+    background-color: rgb(162,229,255);
+    margin-bottom: 0;
+    border-radius: 5px;
+    padding:5px;
+    max-width: 500px;
+    font-size: 18px;
+}
+
+.message-body-other{
+    background-color: lightgray;
+    margin-bottom: 0;
+    border-radius: 5px;
+    padding:5px;
+    max-width: 500px;
+    font-size: 18px;
+}
+
+.other-message{
+    align-self: flex-start;
+    margin-left: 15px;
+    margin-top:0.25em;
+    margin-bottom: 0.25em;
+    overflow-wrap: break-word;
+}
+
+.admin-message{
+    background-color: rgb(255,235,162);
+    align-self: center;
+    font-size: 16px;
+    margin-top:0.25em;
+    margin-bottom: 0.25em;
+    border-radius: 5px;
+    padding:5px;
+}
+
+
+.user-title{
+    background-color: rgb(	184,184,184);
+    padding-left: 50px;
+    padding-right: 50px;
+    border-radius: 10px;
+}
+
 
 .users{
     margin-top: 0px;
     margin-bottom: 50px;
     height: 200px;
     overflow-y:auto;
-    border: 1px black solid;
     padding:40px;
     border-radius: 10px;
     background-color: rgb(255,243,239);
@@ -137,15 +211,33 @@ body {
 
 .message-section{
     margin-top: 20px;
+    width: 800px;
+    display: flex;
     align-self: flex-start;
 }
 
 .message-input{
     height: 2em;
-    width: 800px;;
+    flex-grow: 4;
+    flex-shrink: 4;
     border-radius: 8px;
-    border: 1px black solid;
+    border: none;
     background-color: rgb(255,243,239);
+}
+
+.message-input::placeholder{
+    padding-left: 3px;
+}
+
+.message-input:focus{
+    border: 2px solid rgb(192,192,192);
+    padding: 2px;
+    outline: none;
+}
+
+.basic-btn:focus{
+    border: 2px solid rgb(192,192,192);
+    outline: none;
 }
 
 .user-section{

@@ -183,7 +183,7 @@ async function start(){
         await mongoose.connect(URI)
         console.log('Connected to DB')
         server.listen(5000,()=>{console.log('Started on port 5000...')})
-        let min = 10
+        let min = 1000 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<CHANGE
         let interval = min * 60 * 1000
         setInterval(async () => {
             console.log(`here every ${min} min`);
@@ -191,6 +191,14 @@ async function start(){
              * Deletes users after 10 minutes of not sending a message, deletes room if no one in room
              */
             const rooms = await Message.distinct('room')
+            const allUsers = await User.find({})
+            for(let i = 0; i < allUsers.length;i++){
+                const now = Date.now()
+                if(now - allUsers[i].lastMsg >= min){
+                    await User.findOneAndDelete({sessionID:allUsers[i].sessionID})
+                }
+            }
+
             await User.deleteMany({active:false})
             for(let i = 0; i < rooms.length;i++){
                 const room = await User.find({room:rooms[i]})

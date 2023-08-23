@@ -42,10 +42,7 @@ export default function App(){
                     return [...prevMessages,...json.roomMsg]
                 }))
                 .catch(err => console.log(err))
-            } else {
-                console.log('room doesnt exist, cant make api call');
-            }
-
+            } 
         }
         async function previousUser(){
             const sessionID = sessionStorage.getItem('sessionID')
@@ -124,10 +121,36 @@ export default function App(){
         })
     },[messages])
 
+    /**
+     * Looks for inactive users every 10 minutes and brings them back to login page
+     * note that the interval restarts on browser reload
+     */
+    React.useEffect(()=>{
+        const interval = setInterval(()=>{
+            const sessionID = sessionStorage.getItem('sessionID')
+            if(sessionID){
+                fetch(`http://localhost:5000/api/user/${sessionID}`).then(res => res.json()).then(json => {
+                    if(json.prevSession.length === 0){
+                        const id = sessionStorage.getItem('sessionID')
+                        socket.emit('leave-room',{id})
+                        setLogin(false)
+                        setRoom('')
+                        setUser('')
+                        setMessages([])
+                        setRoomUsers([])
+                    }
+                })
+            }
+        },10*60*1000)
+        return ()=>{
+            clearInterval(interval)
+        }
+    },[])
+
 
     async function joinRoom(){
         // only allows if both are not empty
-        if(user && room){
+        if((user.length >= 5 && user.length <= 15) && room){
             /**
              * setting up sessionID to persist on refresh here on joining a room
              */
@@ -166,8 +189,11 @@ export default function App(){
                 }))
                 .catch(err => console.log(err))                
             }, 150);
-
         }
+        else{
+            alert('Name must be be between 5 and 15 characters')
+        }
+
     }
 
     function sendMsg(){
@@ -199,17 +225,14 @@ export default function App(){
         setMessages([])
         setRoomUsers([])
     }
-// <p key={index} className="own-message">{msg.user} [{msg.time}]: {msg.message}</p>
 
     const formatMessages = messages.map((msg,index) => 
     { 
         if(msg.user === user){
-            return <>
-                <div key={index} className="own-message">
-                    <p className="timestamp">{msg.user} {msg.time}</p>
+            return <div key={index} className="own-message">
+                    <p className="timestamp" >{msg.user} {msg.time}</p>
                     <p className="message-body">{msg.message}</p>
                 </div>
-            </>
         }
         else if(msg.user === 'ADMIN'){
             return <div key={index} className="admin-message">{msg.message}</div>
@@ -233,14 +256,16 @@ export default function App(){
     return ( 
             <div className="background">
             <div className='title'>
-                <h1>Chat App</h1>   
+                {login&&<h1 style={{marginLeft:'20px', backgroundColor:'rgb(192,192,192)'}}>ChatNow</h1>}   
             </div>
             {!login? <Login setUser={setUser} setRoom={setRoom} joinRoom={joinRoom}/>
             :
             (
             <div className='homePage'>
                 <div className='chat-section'>
-                    <h3 className="room-title">Room: {room}</h3>
+                    <div className="room-title">
+                        <h3>Room: {room}</h3>
+                    </div>
                     <div className="chat">
                         {formatMessages}
                         <div ref={ref}></div>
@@ -248,7 +273,7 @@ export default function App(){
                     <div className="message-section">
                         <input type="text" placeholder="Message" className='message-input' value={currMessage} 
                         onChange={(event) => {setCurrMessage(event.target.value)}} onKeyDown={(event) =>{(event.key === 'Enter')&&sendMsg()}}></input>
-                        <button onClick={sendMsg} className="basic-btn">Send</button>
+                        <button onClick={sendMsg} className="basic-btn send">Send</button>
                     </div>
                 </div>
                 <div className='user-section'>

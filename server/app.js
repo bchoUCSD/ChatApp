@@ -34,7 +34,6 @@ let users = {}
 // built in events in socketio 
 // socket is the specific user that is connected
 io.on('connection', (socket) => { 
-    console.log(`${socket.id} connected`)
 
     socket.on("join_room", async (data) => {
         socket.join(data.room)
@@ -107,7 +106,7 @@ io.on('connection', (socket) => {
             await User.deleteOne({sessionID:data.id})
             const userLeft = new Message({
                 user:'ADMIN',
-                room: data.room,
+                room: inDB.room,
                 actual: inDB.user,
                 message: `${inDB.user} disconnected`,
                 time: `${date.getHours()}:${date.getMinutes()}`,
@@ -158,7 +157,6 @@ io.on('connection', (socket) => {
 app.get('/api/roomUsers/:roomID', async (req,res)=>{
 
     const inRoom = await User.find({room: req.params.roomID, active:true}).exec()
-    console.log(inRoom);
     let roomUsers = []
     for(let i = 0; i < inRoom.length;i++){
         roomUsers.push(inRoom[i].user)
@@ -176,6 +174,16 @@ app.get('/api/user/:sessionID', async (req,res) => {
     res.status(200).json({prevSession})
 })
 
+app.get('/api/rooms', async (req,res) => {
+    const rooms = await User.distinct('room')
+    const listOfRooms = []
+    for(let i = 0; i < rooms.length; i++){
+        listOfRooms[i] = rooms[i]
+    }
+    res.status(200).json({listOfRooms})
+})
+
+
 
 async function start(){
     try {
@@ -183,7 +191,7 @@ async function start(){
         await mongoose.connect(URI)
         console.log('Connected to DB')
         server.listen(5000,()=>{console.log('Started on port 5000...')})
-        let min = 1000 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<CHANGE
+        let min = 10
         let interval = min * 60 * 1000
         setInterval(async () => {
             console.log(`here every ${min} min`);

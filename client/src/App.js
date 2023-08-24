@@ -122,7 +122,7 @@ export default function App(){
     },[messages])
 
     /**
-     * Looks for inactive users every 10 minutes and brings them back to login page
+     * Looks for inactive users every 5 minutes and brings them back to login page
      * note that the interval restarts on browser reload
      */
     React.useEffect(()=>{
@@ -141,7 +141,7 @@ export default function App(){
                     }
                 })
             }
-        },10*60*1000)
+        },5*60*1000)
         return ()=>{
             clearInterval(interval)
         }

@@ -13,25 +13,14 @@ const server = http.createServer(app)
 app.use(cors())
 app.use(express.json())
 
-// issue might be here when the server was first created, so might need to do a Date().get
-
 const io = new Server(server, {
     cors: {
         origin:'http://localhost:3000',
         methods: ["GET", "POST"]
-         // tell socketio that info will be coming from this port
-        // 3000 is React's default port
+         // tell socketio that info will be coming from default react port(3000)
     }
 })
 
-/**
- * holds the current users in all rooms, will eventually replace with database
- * with schema of user,room,socketid
- */
-let users = {}
-
-
-// built in events in socketio 
 // socket is the specific user that is connected
 io.on('connection', (socket) => { 
 
@@ -48,8 +37,6 @@ io.on('connection', (socket) => {
         })
         await joinMessage.save()
 
-        users[socket.id] = data // adding user to the list of active users
-        // attempting to add to database
         await User.create({
             sessionID:data.sessionID,
             socketID:socket.id,
@@ -76,10 +63,7 @@ io.on('connection', (socket) => {
         })
         await joinMessage.save()
 
-        // combine into one line
-        await User.findOneAndUpdate({sessionID:data.sessionID},{time: Date.now()})
-        await User.findOneAndUpdate({sessionID:data.sessionID},{active: true})
-        await User.findOneAndUpdate({sessionID:data.sessionID},{socketID:socket.id})
+        await User.findOneAndUpdate({sessionID:data.sessionID},{time: Date.now(), active:true, socketID:socket.id})
 
         socket.to(data.room).emit('user_join',joinMessage)
     })
@@ -128,12 +112,10 @@ io.on('connection', (socket) => {
     })
     
     /**
-     * the above two methods are very similar because this one is the browser closing while which disconnects
-     * the actual socket while the above is for when the user wants to switch rooms.  
+     * Disconnect is the socket itself closing initiated with browswer close
      */ 
     
     socket.on('disconnect',async () =>{
-
         const inDB = await User.findOne({socketID: socket.id}).exec()
         if(inDB){
             const date = new Date()

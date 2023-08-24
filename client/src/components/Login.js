@@ -25,8 +25,7 @@ export default function Login({setUser,setRoom,joinRoom}){
                 onChange={(event) => {setRoom(event.target.value)}}/>
                 <button onClick={joinRoom} className='join-button'>Join</button>
             </div >
-            <p style={{fontSize:'18px'}}>Hello! Welcome ChatNow! All chats and users will be deleted upon leaving room and
-                users will be deleted after 10 minutes of inactivity.
+            <p style={{fontSize:'18px'}}>Welcome to ChatNow! Rooms are cleared after the last user leaves and inactive users are removed after 10 minutes.
             </p>
             <div className='get-active'>
                 <button onClick={getRooms} className='active-btn'>{clicked?'Hide':'Active Rooms'}</button>

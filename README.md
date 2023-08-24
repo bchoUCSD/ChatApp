@@ -13,7 +13,7 @@ ChatNow is an application that allows group conversations to happen in real time
 ```
 git clone git@github.com:bchoUCSD/ChatApp.git
 ```
-
+2. Add own MONGO URI to client/app.js
 
 3. Open two terminals 
 ```

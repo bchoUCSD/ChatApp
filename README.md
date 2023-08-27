@@ -3,6 +3,7 @@
 ChatNow is an application that allows group conversations to happen in real time. Users can create or join existing rooms based on a room-id that represents a topic or a passphrase shared among some users. In addition, the login page allows users to find existing rooms to join if they wished to. Note that users will be deleted from database if they are inactive for 10 minutes and messages in a room will be deleted if all the users leave.
 
 ## Visuals
+![demo](images/ChatDemo.gif)
 ![LoginPic](images/login.png)
 ![chatPic](images/chat.png)
 

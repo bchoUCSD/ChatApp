@@ -30,4 +30,4 @@ npm start
 ```
 
 ## Roadmap
-- Account creation and private messaging between users with persistant data
+- Optional account creation and private messaging between users with persistant data
